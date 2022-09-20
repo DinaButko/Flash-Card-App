@@ -8,11 +8,16 @@ import pandas as pd
 
 # ----------CONSTANTS-------------#
 BACKGROUND_COLOR = "#B1DDC6"
-
-data = pandas.read_csv("data/english_words.csv")
-to_learn = data.to_dict(orient="records")
-print(to_learn)
 current_card = {}
+to_learn = {}
+try:
+    data = pandas.read_csv("data/words_to_learn.csv")
+except FileNotFoundError:
+    original_data = pandas.read_csv("data/english_words.csv")
+    to_learn = original_data.to_dict(orient="records")
+else:
+    to_learn = data.to_dict(orient="records")
+
 
 # ---------SHOW WORDS---------------------#
 
@@ -32,6 +37,13 @@ def flip_card():
     canvas.itemconfig(card_title, text="Russian Translation", fill="white")
     canvas.itemconfig(card_word, text = current_card["Russian"], fill="white")
     canvas.itemconfig(card_background, image = card_back_image)
+
+def is_known():
+    to_learn.remove(current_card)
+    data = pandas.DataFrame(to_learn)
+    data.to_csv("data/words_to_learn.csv", index=False)
+    next_card()
+
 
 
 # ---------UI SET UP---------------------#
@@ -55,7 +67,7 @@ card_word = canvas.create_text(400, 263, text="word", fill = "black", font = "Ar
 canvas.grid(column=0, row=0, columnspan=2)
 
 right_image = PhotoImage(file="images/right.png")
-button_right = Button(image=right_image,highlightbackground=(BACKGROUND_COLOR), command=next_card)
+button_right = Button(image=right_image,highlightbackground=(BACKGROUND_COLOR), command=is_known)
 button_right.grid(column=1, row=1)
 
 wrong_image = PhotoImage(file="images/wrong.png")
